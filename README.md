@@ -52,6 +52,12 @@ curl http://127.0.0.1:8000/events
 curl http://127.0.0.1:8000/events/1
 ```
 
+Mark a pending event as completed:
+
+```bash
+curl -X POST http://127.0.0.1:8000/events/1/complete
+```
+
 ## Intentional limitations
 
 - `create_all()` creates missing tables but cannot safely evolve an existing
@@ -61,4 +67,3 @@ curl http://127.0.0.1:8000/events/1
 - Database work is synchronous. That keeps the request-to-SQL flow visible; an
   async driver can wait until concurrency requirements justify the added concepts.
 - There are no workers, queues, retries, authentication, Docker setup, or frontend.
-

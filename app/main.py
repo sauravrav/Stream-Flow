@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import select
@@ -40,3 +41,18 @@ def get_event(event_id: int, db: Session = Depends(get_db)) -> Event:
         raise HTTPException(status_code=404, detail="Event not found")
     return event
 
+
+@app.post("/events/{event_id}/complete", response_model=EventRead)
+def complete_event(event_id: int, db: Session = Depends(get_db)) -> Event:
+    event = db.get(Event, event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if event.status != "pending":
+        raise HTTPException(status_code=409, detail="Event is not pending")
+
+    event.status = "completed"
+    event.processed_at = datetime.now(timezone.utc)
+    event.attempt_count += 1
+    db.commit()
+    db.refresh(event)
+    return event
