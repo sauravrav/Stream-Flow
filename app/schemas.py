@@ -27,3 +27,16 @@ class EventRead(BaseModel):
 class ProcessNextResponse(BaseModel):
     message: str
     event: EventRead | None
+
+
+class RetryResponse(BaseModel):
+    message: str
+    event: EventRead
+
+
+class EventStats(BaseModel):
+    total: int
+    pending: int
+    processing: int
+    completed: int
+    failed: int

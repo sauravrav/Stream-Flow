@@ -8,7 +8,8 @@ validates, stores, and retrieves events using FastAPI, SQLAlchemy, and PostgreSQ
 ```text
 app/
 ├── handlers/
-│   └── user_handlers.py # Business logic for user events
+│   ├── payment_handlers.py # Business logic for payment events
+│   └── user_handlers.py    # Business logic for user events
 ├── __init__.py          # Makes app a Python package
 ├── database.py          # Database engine, sessions, and session dependency
 ├── main.py              # Application startup and HTTP endpoints
@@ -59,6 +60,14 @@ Process the oldest pending event:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/events/process-next
+```
+
+Retry a failed event, filter events, or view status counts:
+
+```bash
+curl -X POST http://127.0.0.1:8000/events/1/retry
+curl 'http://127.0.0.1:8000/events?status=failed&event_type=payment.completed'
+curl http://127.0.0.1:8000/events/stats
 ```
 
 ## Intentional limitations
