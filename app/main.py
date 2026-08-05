@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 
 from app.database import Base, engine, get_db
 from app.models import Event
-from app.schemas import EventCreate, EventRead
+from app.processor import process_next_event
+from app.schemas import EventCreate, EventRead, ProcessNextResponse
 
 
 @asynccontextmanager
@@ -32,6 +33,20 @@ def create_event(event_data: EventCreate, db: Session = Depends(get_db)) -> Even
 def list_events(db: Session = Depends(get_db)) -> list[Event]:
     statement = select(Event).order_by(Event.id)
     return list(db.scalars(statement).all())
+
+
+@app.post("/events/process-next", response_model=ProcessNextResponse)
+def process_next(db: Session = Depends(get_db)) -> ProcessNextResponse:
+    event = process_next_event(db)
+    if event is None:
+        return ProcessNextResponse(message="No pending events to process.", event=None)
+
+    message = (
+        "Event processed successfully."
+        if event.status == "completed"
+        else "Event processing failed."
+    )
+    return ProcessNextResponse(message=message, event=EventRead.model_validate(event))
 
 
 @app.get("/events/{event_id}", response_model=EventRead)

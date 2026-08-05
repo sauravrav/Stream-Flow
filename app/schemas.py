@@ -23,3 +23,7 @@ class EventRead(BaseModel):
     attempt_count: int
     error_message: str | None
 
+
+class ProcessNextResponse(BaseModel):
+    message: str
+    event: EventRead | None

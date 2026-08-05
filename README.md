@@ -7,11 +7,14 @@ validates, stores, and retrieves events using FastAPI, SQLAlchemy, and PostgreSQ
 
 ```text
 app/
-├── __init__.py   # Makes app a Python package
-├── database.py   # Database engine, sessions, and FastAPI session dependency
-├── main.py       # Application startup and the three HTTP endpoints
-├── models.py     # SQLAlchemy Event table mapping
-└── schemas.py    # Pydantic request and response shapes
+├── handlers/
+│   └── user_handlers.py # Business logic for user events
+├── __init__.py          # Makes app a Python package
+├── database.py          # Database engine, sessions, and session dependency
+├── main.py              # Application startup and HTTP endpoints
+├── models.py            # SQLAlchemy Event table mapping
+├── processor.py         # Selects, dispatches, and updates one event
+└── schemas.py           # Pydantic request and response shapes
 ```
 
 ## Run locally
@@ -42,7 +45,7 @@ Create an event:
 ```bash
 curl -X POST http://127.0.0.1:8000/events \
   -H "Content-Type: application/json" \
-  -d '{"event_type":"user.registered","source":"accounts-api","payload":{"user_id":123}}'
+  -d '{"event_type":"user.created","source":"accounts-api","payload":{"user_id":123,"email":"alice@example.com"}}'
 ```
 
 Retrieve events:
@@ -52,10 +55,10 @@ curl http://127.0.0.1:8000/events
 curl http://127.0.0.1:8000/events/1
 ```
 
-Mark a pending event as completed:
+Process the oldest pending event:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/events/1/complete
+curl -X POST http://127.0.0.1:8000/events/process-next
 ```
 
 ## Intentional limitations
