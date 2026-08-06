@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class EventCreate(BaseModel):
     event_type: str = Field(min_length=1, max_length=255)
     source: str = Field(min_length=1, max_length=255)
+    external_event_id: str = Field(min_length=1, max_length=255)
     payload: dict[str, Any]
 
 
@@ -16,6 +17,7 @@ class EventRead(BaseModel):
     id: int
     event_type: str
     source: str
+    external_event_id: str
     payload: dict[str, Any]
     status: str
     received_at: datetime
@@ -40,3 +42,8 @@ class EventStats(BaseModel):
     processing: int
     completed: int
     failed: int
+    dead_letter: int
+
+
+class EventPayloadUpdate(BaseModel):
+    payload: dict[str, Any]

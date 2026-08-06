@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import Depends, FastAPI, HTTPException, status as http_status
+from fastapi import Depends, FastAPI, HTTPException, Response, status as http_status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import Base, engine, get_db
@@ -10,12 +11,12 @@ from app.models import Event
 from app.processor import MAX_ATTEMPTS, process_next_event
 from app.schemas import (
     EventCreate,
+    EventPayloadUpdate,
     EventRead,
     EventStats,
     ProcessNextResponse,
     RetryResponse,
 )
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,10 +30,27 @@ app = FastAPI(title="StreamFlow", lifespan=lifespan)
 @app.post(
     "/events", response_model=EventRead, status_code=http_status.HTTP_201_CREATED
 )
-def create_event(event_data: EventCreate, db: Session = Depends(get_db)) -> Event:
+def create_event(
+    event_data: EventCreate,
+    response: Response,
+    db: Session = Depends(get_db),
+) -> Event:
     event = Event(**event_data.model_dump())
     db.add(event)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing_event = db.scalar(
+            select(Event).where(
+                Event.source == event_data.source,
+                Event.external_event_id == event_data.external_event_id,
+            )
+        )
+        if existing_event is not None:
+            response.status_code = http_status.HTTP_200_OK
+            return existing_event
+        raise
     db.refresh(event)
     return event
 
@@ -76,7 +94,16 @@ def event_stats(db: Session = Depends(get_db)) -> EventStats:
         processing=counts.get("processing", 0),
         completed=counts.get("completed", 0),
         failed=counts.get("failed", 0),
+        dead_letter=counts.get("dead_letter", 0),
     )
+
+
+@app.get("/events/dead-letter", response_model=list[EventRead])
+def list_dead_letter_events(db: Session = Depends(get_db)) -> list[Event]:
+    statement = (
+        select(Event).where(Event.status == "dead_letter").order_by(Event.id)
+    )
+    return list(db.scalars(statement).all())
 
 
 @app.get("/events/{event_id}", response_model=EventRead)
@@ -84,6 +111,27 @@ def get_event(event_id: int, db: Session = Depends(get_db)) -> Event:
     event = db.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
+    return event
+
+
+@app.patch("/events/{event_id}", response_model=EventRead)
+def update_event_payload(
+    event_id: int,
+    payload_update: EventPayloadUpdate,
+    db: Session = Depends(get_db),
+) -> Event:
+    event = db.get(Event, event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if event.status != "failed":
+        raise HTTPException(
+            status_code=400,
+            detail="Payload can only be updated for failed events.",
+        )
+
+    event.payload = payload_update.payload
+    db.commit()
+    db.refresh(event)
     return event
 
 

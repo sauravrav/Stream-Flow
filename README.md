@@ -16,6 +16,8 @@ app/
 ├── models.py            # SQLAlchemy Event table mapping
 ├── processor.py         # Selects, dispatches, and updates one event
 └── schemas.py           # Pydantic request and response shapes
+scripts/
+└── add_external_event_id.py # Safely updates an existing events table
 ```
 
 ## Run locally
@@ -36,8 +38,14 @@ export DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/strea
 uvicorn app.main:app --reload
 ```
 
-The `events` table is created when the application starts. Interactive API docs
-are available at <http://127.0.0.1:8000/docs>.
+The `events` table is created when the application starts. For a database that
+already has the table, run the schema update once before starting this version:
+
+```bash
+python -m scripts.add_external_event_id
+```
+
+Interactive API docs are available at <http://127.0.0.1:8000/docs>.
 
 ## Try the API
 
@@ -46,7 +54,7 @@ Create an event:
 ```bash
 curl -X POST http://127.0.0.1:8000/events \
   -H "Content-Type: application/json" \
-  -d '{"event_type":"user.created","source":"accounts-api","payload":{"user_id":123,"email":"alice@example.com"}}'
+  -d '{"event_type":"user.created","source":"accounts-api","external_event_id":"user-123-created","payload":{"user_id":123,"email":"alice@example.com"}}'
 ```
 
 Retrieve events:
@@ -68,14 +76,24 @@ Retry a failed event, filter events, or view status counts:
 curl -X POST http://127.0.0.1:8000/events/1/retry
 curl 'http://127.0.0.1:8000/events?status=failed&event_type=payment.completed'
 curl http://127.0.0.1:8000/events/stats
+curl http://127.0.0.1:8000/events/dead-letter
+```
+
+Correct the payload of a failed event without retrying it:
+
+```bash
+curl -X PATCH http://127.0.0.1:8000/events/1 \
+  -H "Content-Type: application/json" \
+  -d '{"payload":{"user_id":123,"email":"alice@example.com"}}'
 ```
 
 ## Intentional limitations
 
 - `create_all()` creates missing tables but cannot safely evolve an existing
-  schema. A migration tool can be introduced when the model first needs to change.
+  schema. The small script above performs the one schema change currently needed.
 - Listing returns every event. Pagination can wait until the growing result set
   creates a real problem.
 - Database work is synchronous. That keeps the request-to-SQL flow visible; an
   async driver can wait until concurrency requirements justify the added concepts.
-- There are no workers, queues, retries, authentication, Docker setup, or frontend.
+- There are no workers, queues, automatic retries, authentication, Docker setup,
+  or frontend.

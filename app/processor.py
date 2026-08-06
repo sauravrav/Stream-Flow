@@ -46,7 +46,9 @@ def process_next_event(db: Session) -> Event | None:
         event.status = "completed"
         event.error_message = None
     except Exception as exc:
-        event.status = "failed"
+        event.status = (
+            "dead_letter" if event.attempt_count >= MAX_ATTEMPTS else "failed"
+        )
         event.error_message = str(exc)
 
     event.processed_at = datetime.now(timezone.utc)
