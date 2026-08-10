@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_handlers import handle_payment_completed
+from app.handlers.shipment_handlers import handle_shipment_dispatched
 from app.handlers.user_handlers import handle_user_created
 from app.models import Event
 
@@ -14,6 +15,7 @@ handlers = {
     "user.created": handle_user_created,
     "order.placed": handle_order_placed,
     "payment.completed": handle_payment_completed,
+    "shipment.dispatched": handle_shipment_dispatched,
 }
 
 
