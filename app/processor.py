@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_handlers import handle_payment_completed
 from app.handlers.user_handlers import handle_user_created
 from app.models import Event
@@ -11,6 +12,7 @@ MAX_ATTEMPTS = 3
 
 handlers = {
     "user.created": handle_user_created,
+    "order.placed": handle_order_placed,
     "payment.completed": handle_payment_completed,
 }
 
