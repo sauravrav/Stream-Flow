@@ -8,8 +8,12 @@ from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_failure_handlers import handle_payment_failed
 from app.handlers.payment_handlers import handle_payment_completed
 from app.handlers.refund_handlers import handle_refund_completed
-from app.handlers.shipment_handlers import handle_shipment_dispatched
+from app.handlers.shipment_handlers import (
+    handle_shipment_delivered,
+    handle_shipment_dispatched,
+)
 from app.handlers.subscription_handlers import handle_subscription_cancelled
+from app.handlers.support_handlers import handle_support_ticket_created
 from app.handlers.user_handlers import handle_user_created
 from app.models import Event
 
@@ -22,8 +26,10 @@ handlers = {
     "payment.completed": handle_payment_completed,
     "payment.failed": handle_payment_failed,
     "refund.completed": handle_refund_completed,
+    "shipment.delivered": handle_shipment_delivered,
     "shipment.dispatched": handle_shipment_dispatched,
     "subscription.cancelled": handle_subscription_cancelled,
+    "support.ticket_created": handle_support_ticket_created,
 }
 
 
