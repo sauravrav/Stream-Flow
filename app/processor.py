@@ -4,10 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.handlers.inventory_handlers import handle_inventory_low
+from app.handlers.invoice_handlers import handle_invoice_generated
 from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_failure_handlers import handle_payment_failed
 from app.handlers.payment_handlers import handle_payment_completed
 from app.handlers.refund_handlers import handle_refund_completed
+from app.handlers.security_handlers import handle_suspicious_login
 from app.handlers.shipment_handlers import (
     handle_shipment_delivered,
     handle_shipment_dispatched,
@@ -22,6 +24,8 @@ MAX_ATTEMPTS = 3
 handlers = {
     "user.created": handle_user_created,
     "inventory.low": handle_inventory_low,
+    "invoice.generated": handle_invoice_generated,
+    "login.suspicious": handle_suspicious_login,
     "order.placed": handle_order_placed,
     "payment.completed": handle_payment_completed,
     "payment.failed": handle_payment_failed,
