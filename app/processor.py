@@ -3,12 +3,14 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.handlers.cart_handlers import handle_cart_abandoned
 from app.handlers.inventory_handlers import handle_inventory_low
 from app.handlers.invoice_handlers import handle_invoice_generated
 from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_failure_handlers import handle_payment_failed
 from app.handlers.payment_handlers import handle_payment_completed
 from app.handlers.refund_handlers import handle_refund_completed
+from app.handlers.review_handlers import handle_review_submitted
 from app.handlers.security_handlers import handle_suspicious_login
 from app.handlers.shipment_handlers import (
     handle_shipment_delivered,
@@ -22,6 +24,7 @@ from app.models import Event
 MAX_ATTEMPTS = 3
 
 handlers = {
+    "cart.abandoned": handle_cart_abandoned,
     "user.created": handle_user_created,
     "inventory.low": handle_inventory_low,
     "invoice.generated": handle_invoice_generated,
@@ -30,6 +33,7 @@ handlers = {
     "payment.completed": handle_payment_completed,
     "payment.failed": handle_payment_failed,
     "refund.completed": handle_refund_completed,
+    "review.submitted": handle_review_submitted,
     "shipment.delivered": handle_shipment_delivered,
     "shipment.dispatched": handle_shipment_dispatched,
     "subscription.cancelled": handle_subscription_cancelled,
