@@ -4,6 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.handlers.cart_handlers import handle_cart_abandoned
+from app.handlers.coupon_handlers import handle_coupon_redeemed
+from app.handlers.email_handlers import handle_email_bounced
 from app.handlers.inventory_handlers import handle_inventory_low
 from app.handlers.invoice_handlers import handle_invoice_generated
 from app.handlers.order_handlers import handle_order_placed
@@ -25,6 +27,8 @@ MAX_ATTEMPTS = 3
 
 handlers = {
     "cart.abandoned": handle_cart_abandoned,
+    "coupon.redeemed": handle_coupon_redeemed,
+    "email.bounced": handle_email_bounced,
     "user.created": handle_user_created,
     "inventory.low": handle_inventory_low,
     "invoice.generated": handle_invoice_generated,
