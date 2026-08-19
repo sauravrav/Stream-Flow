@@ -8,9 +8,11 @@ from app.handlers.coupon_handlers import handle_coupon_redeemed
 from app.handlers.email_handlers import handle_email_bounced
 from app.handlers.inventory_handlers import handle_inventory_low
 from app.handlers.invoice_handlers import handle_invoice_generated
+from app.handlers.loyalty_handlers import handle_loyalty_points_earned
 from app.handlers.order_handlers import handle_order_placed
 from app.handlers.payment_failure_handlers import handle_payment_failed
 from app.handlers.payment_handlers import handle_payment_completed
+from app.handlers.product_handlers import handle_product_price_changed
 from app.handlers.refund_handlers import handle_refund_completed
 from app.handlers.review_handlers import handle_review_submitted
 from app.handlers.security_handlers import handle_suspicious_login
@@ -33,9 +35,11 @@ handlers = {
     "inventory.low": handle_inventory_low,
     "invoice.generated": handle_invoice_generated,
     "login.suspicious": handle_suspicious_login,
+    "loyalty.points_earned": handle_loyalty_points_earned,
     "order.placed": handle_order_placed,
     "payment.completed": handle_payment_completed,
     "payment.failed": handle_payment_failed,
+    "product.price_changed": handle_product_price_changed,
     "refund.completed": handle_refund_completed,
     "review.submitted": handle_review_submitted,
     "shipment.delivered": handle_shipment_delivered,
