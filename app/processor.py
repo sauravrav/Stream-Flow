@@ -14,6 +14,7 @@ from app.handlers.payment_failure_handlers import handle_payment_failed
 from app.handlers.payment_handlers import handle_payment_completed
 from app.handlers.product_handlers import handle_product_price_changed
 from app.handlers.refund_handlers import handle_refund_completed
+from app.handlers.return_handlers import handle_return_requested
 from app.handlers.review_handlers import handle_review_submitted
 from app.handlers.security_handlers import handle_suspicious_login
 from app.handlers.shipment_handlers import (
@@ -23,6 +24,7 @@ from app.handlers.shipment_handlers import (
 from app.handlers.subscription_handlers import handle_subscription_cancelled
 from app.handlers.support_handlers import handle_support_ticket_created
 from app.handlers.user_handlers import handle_user_created
+from app.handlers.wishlist_handlers import handle_wishlist_item_added
 from app.models import Event
 
 MAX_ATTEMPTS = 3
@@ -41,11 +43,13 @@ handlers = {
     "payment.failed": handle_payment_failed,
     "product.price_changed": handle_product_price_changed,
     "refund.completed": handle_refund_completed,
+    "return.requested": handle_return_requested,
     "review.submitted": handle_review_submitted,
     "shipment.delivered": handle_shipment_delivered,
     "shipment.dispatched": handle_shipment_dispatched,
     "subscription.cancelled": handle_subscription_cancelled,
     "support.ticket_created": handle_support_ticket_created,
+    "wishlist.item_added": handle_wishlist_item_added,
 }
 
 
