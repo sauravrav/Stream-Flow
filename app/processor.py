@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.handlers.cart_handlers import handle_cart_abandoned
 from app.handlers.coupon_handlers import handle_coupon_redeemed
 from app.handlers.email_handlers import handle_email_bounced
-from app.handlers.inventory_handlers import handle_inventory_low
+from app.handlers.gift_card_handlers import handle_gift_card_redeemed
+from app.handlers.inventory_handlers import handle_inventory_low, handle_inventory_restocked
 from app.handlers.invoice_handlers import handle_invoice_generated
 from app.handlers.loyalty_handlers import handle_loyalty_points_earned
 from app.handlers.order_handlers import handle_order_placed
@@ -33,8 +34,10 @@ handlers = {
     "cart.abandoned": handle_cart_abandoned,
     "coupon.redeemed": handle_coupon_redeemed,
     "email.bounced": handle_email_bounced,
+    "gift_card.redeemed": handle_gift_card_redeemed,
     "user.created": handle_user_created,
     "inventory.low": handle_inventory_low,
+    "inventory.restocked": handle_inventory_restocked,
     "invoice.generated": handle_invoice_generated,
     "login.suspicious": handle_suspicious_login,
     "loyalty.points_earned": handle_loyalty_points_earned,
